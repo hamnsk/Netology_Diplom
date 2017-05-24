@@ -11,15 +11,18 @@ def get_auth_api(access_token):
     return vk.API(session)
 
 
-def check_member(vk_api, user_id, groups):
+def check_member(vk_api, user_ids, groups):
+    bad_groups = []
     for group in groups:
         time.sleep(1)
-        print('Проверяем пользователя {} в группе {}'.format(user_id, group))
-        result = vk_api.groups.isMember(group_id=group, user_id=user_id)
-        print('Результат членства {}'.format(result))
-        if result:
-            print('Пользователь {} состоит в группе {} следовательно удаляемм ее из списка'.format(user_id, group))
-            groups.remove(group)
+        result = vk_api.groups.isMember(group_id=group, user_ids=user_ids)
+        for item in result:
+            if item['member']:
+                print('Один из пользователей состоит в группе {} следовательно удаляемм ее из списка'.format(group))
+                bad_groups.append(group)
+                break
+    for group in bad_groups:
+        groups.remove(group)
     return groups
 
 
@@ -27,11 +30,35 @@ def main():
     vk_api = get_auth_api(VK_TOKEN)
     friends = vk_api.friends.get(user_id=USER_ID)
     groups = vk_api.groups.get(user_id=USER_ID)
-    for friend in friends:
-        print(len(groups))
-
-        groups = check_member(vk_api, friend, groups)
-    pprint(groups)
+    while True:
+        if not friends:
+            break
+        groups = check_member(vk_api, friends[:500], groups)
+        friends = friends[500:]
+    response = vk_api.groups.getById(group_ids=groups,
+                                     fields='city,'
+                                            'country,'
+                                            'place,'
+                                            'description,'
+                                            'wiki_page,'
+                                            'members_count,'
+                                            'counters,'
+                                            'start_date,'
+                                            'finish_date,'
+                                            'can_post,'
+                                            'can_see_all_posts,'
+                                            'activity,'
+                                            'status,'
+                                            'contacts,'
+                                            'links,'
+                                            'fixed_post,'
+                                            'verified,'
+                                            'site,'
+                                            'ban_info,'
+                                            'cover')
+    pprint(response)
+    with open('result.json', 'w', encoding='utf-8') as json_file:
+        json_file.write(response)
 
 
 if __name__ == '__main__':
