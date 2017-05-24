@@ -59,8 +59,11 @@ def main():
                                             'cover')
     pprint(response)
     with open('result.json', 'w', encoding='utf-8') as json_file:
-        data = json.dumps(response, indent=2, sort_keys=True,
-                             separators=(',', ':'), ensure_ascii=False)
+        data = json.dumps(response,
+                          indent=2,
+                          sort_keys=True,
+                          separators=(',', ':'),
+                          ensure_ascii=False)
         json_file.write(data)
 
 
