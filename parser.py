@@ -96,17 +96,18 @@ def check_member(vk_api, user_ids, groups):
 
 
 def check_member_native(vk_api, user_ids, groups):
-    bad_groups = []
+    bad_groups = set()
     for group in groups:
         # time.sleep(0.5)
         result = vk_api.is_member(group_id=group, user_ids=user_ids)
         for item in result:
             if item['member']:
                 print('.')
-                bad_groups.append(group)
+                bad_groups.add(group)
                 break
-    for group in bad_groups:
-        groups.remove(group)
+    # for group in bad_groups:
+    #     groups.remove(group)
+    groups = groups - bad_groups
     return groups
 
 
@@ -138,8 +139,7 @@ def new_method():
         groups = check_member(vk_api, friends[:500], groups)
         friends = friends[500:]
     response = vk_api.groups.getById(group_ids=groups,
-                                     fields='description,'
-                                            'members_count')
+                                     fields='members_count')
     pprint(response)
     dump_to_json(response)
 
@@ -152,7 +152,7 @@ def old_method():
     except ValueError:
         vk_user = native_vk.fetch_user_id(vk_user)
 
-    groups_native = native_vk.fetch_groups(vk_user)
+    groups_native = set(native_vk.fetch_groups(vk_user))
     friends_native = native_vk.fetch_friends(vk_user)
     step = 500
     for i in range(0, len(friends_native), step):
