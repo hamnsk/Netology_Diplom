@@ -110,18 +110,20 @@ def check_member_native(vk_api, user_ids, groups):
     return groups
 
 
+def result_data_generator(response):
+    for item in response:
+        group = {
+            'gid': item['gid'],
+            'members_count': item['members_count'],
+            'name': item['name']
+        }
+        yield group
+
+
 def dump_to_json(response):
     with open('groups.json', 'w', encoding='utf-8') as json_file:
-        data_list = []
-        for item in response:
-            group = {
-                'gid': item['gid'],
-                'members_count': item['members_count'],
-                'name': item['name']
-            }
-            data_list.append(group)
-
-        data = json.dumps(data_list, indent=2, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+        data = json.dumps(list(result_data_generator(response)),
+                          indent=2, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
         json_file.write(data)
 
 
