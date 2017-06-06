@@ -20,12 +20,12 @@ class NativeVk(object):
         err_result = {}
         for err_count in range(0, 100):
             try:
-                result = requests.post(url, args)
-                result = result.json()['response']
+                response = requests.post(url, args)
+                result = response.json()['response']
             except KeyError:
                 err_result = {
-                    'error_msg': result.json()['error']['error_msg'],
-                    'error_code': result.json()['error']['error_code']
+                    'error_msg': response.json()['error']['error_msg'],
+                    'error_code': response.json()['error']['error_code']
                 }
             else:
                 err_result = {}
