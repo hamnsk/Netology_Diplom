@@ -17,14 +17,22 @@ class NativeVk(object):
 
     def call_api(self, method_name, args):
         url = self.vk_url.format(method=method_name)
+        err_result = {}
         for err_count in range(0, 100):
             try:
                 result = requests.post(url, args)
                 result = result.json()['response']
             except KeyError:
-                pass
+                err_result = {
+                    'error_msg': result.json()['error']['error_msg'],
+                    'error_code': result.json()['error']['error_code']
+                }
             else:
+                err_result = {}
                 break
+        if err_result:
+            pprint(err_result)
+            exit(1)
         return result
 
     def fetch_groups(self, user_id):
