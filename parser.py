@@ -18,6 +18,7 @@ class NativeVk(object):
     def call_api(self, method_name, args):
         url = self.vk_url.format(method=method_name)
         err_result = {}
+        result = None
         for err_count in range(0, 100):
             try:
                 response = requests.post(url, args)
